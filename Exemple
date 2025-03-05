@@ -1,0 +1,92 @@
+#11
+#operatie join pe cel putin 4 tabele + ordonare + grupari de date + functii grup + filtrare la nivel de grupuri + filtrare la nivel de linii
+#Sa se afiseze TOATE turnelee in ordine lexicografica alaturi de numarul de bilete vandute si nr staff unde s-au vandut mai mult de 2 bilete
+select count(nr_bilet) as "Bilete vandute in total", count(cnp_staff) as "Numar staff", trn.nume as "Nume turneu"
+from turneu_de_tenis trn
+left join bilet on (turneu_id = turneu_id_f)
+left join arena on (adresa_f = adresa)
+left join staff on (turneu_id = turneu_id_fs)
+group by trn.nume
+having count(nr_bilet) >= 2
+order by trn.nume;
+
+#subcerere sincronizata in care intervin cel putin 3 tabele
+#Sa se afiseze statisticile unde nr_de lovituri_castigatoare este mai strict decat media generala
+select *
+from statistica stt
+join lista lst on (lst.lista_id = stt.statistica_id)
+join meci mc on (mc.lista_id_f = lst.lista_id)
+where stt.nr_lovituri_castigatoare > (select avg(nr_lovituri_castigatoare)
+										from statistica
+										where nr_lovituri_castigatoare = nr_lovituri_castigatoare);
+
+#subcerere nesincronizata in care intervin cel putin 3 tabele + 2 functii pe date calendaristice + 1 functie pe siruri de caractere
+#Sa se afiseze toate turneele distincte unde participa antrenori din USA, alaturi de durata lor si timpul trecut de la sfarsitul turneului
+select distinct(trn.nume) as "Nume turneu", datediff(trn.data_sfarsit,trn.data_inceput) as "Durata turneu (zile)", round(datediff(sysdate(),data_sfarsit)/365.25) as "Timp trecut de la turneu (~ani)"
+from turneu_de_tenis trn
+join participant part on (trn.turneu_id = part.id_turneu_f)
+join antrenor antr on (antr.cnp_antrenor LIKE part.cnp_antrenor_f)
+where antr.nume in (select nume
+						from antrenor
+						where upper(tara) like 'USA')
+order by trn.nume desc;
+
+#folosirea unei expresii CASE
+#Afisarea turneelor alaturi de tip bilet si pret
+select trn.nume, blt.tip_bilet "Tip clasic", 
+case
+	when pret_bilet >= 155
+		then "Scump"
+	else
+		"Ieftin"
+end as "Tip bilet"
+from turneu_de_tenis trn
+join bilet blt on (turneu_id = turneu_id_f);
+
+
+#utilizarea a cel putin 1 bloc de cerere (clauza with) + 1 functie pe siruri de caractere
+#Sa se afiseze participantii unici care iau parte la meciuri de finala din cadrul listei cu id 1
+with meci_temp as 
+			(select *
+            from meci
+            where lower(tip) like 'finala' and lista_p_id_fm = 1)
+select distinct(cnp_participant), nume, prenume
+from participant part
+join lista_participanti lpart on (lista_p_id_f = lista_p_id)
+join meci mc on (lista_p_id = lista_p_id_f)
+where mc.meci_id in (select meci_id
+					from meci_temp);
+
+#12
+
+UPDATE bilet SET tip_bilet = 'standard'  WHERE (SELECT turneu_id FROM turneu_de_tenis WHERE turneu_id = 1) = nr_bilet AND tip_bilet = 'VIP';
+UPDATE medici SET divizie = 'pe teren'  WHERE (SELECT cnp_staff FROM staff WHERE cnp_staff = 3253746) = cnp_staff_m AND divizie = 'urgente';
+UPDATE ajutoare SET divizie = 'ball boy'  WHERE (SELECT cnp_staff FROM staff WHERE cnp_staff = 7929040) = cnp_staff_a AND divizie = 'organizator';
+
+#13
+#pentru 13 deja am in fisierul de creeare
+
+#14
+
+select * from medici;				
+select cnp_staff, turneu_id_fs, nume, prenume
+from staff;
+## join medici on (staff.cnp_staff = medici.cnp_staff_m); ##
+
+create or replace view `staff_medical` AS
+SELECT a.cnp_staff CNP, a.nume Nume, a.prenume Prenume, a.turneu_id_fs TURNEU, p.divizie DIVIZIE
+from staff a JOIN medici p on (a.cnp_staff = p.cnp_staff_m);
+
+select * from `staff_medical`;
+                    
+                    
+                    
+INSERT INTO staff_medical(CNP, Nume, Prenume, TURNEU ) values (1112222, 'Zoe', 'Hanji', '1' );
+
+INSERT INTO staff_medical(CNP, Nume, Prenume, TURNEU, DIVIZIE ) values (5133222, 'Zoe', 'Hanji', '1', 'pe teren' );
+
+
+
+
+
+

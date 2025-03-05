@@ -1,0 +1,778 @@
+###############Reset schema#################################
+drop schema proiect;
+create schema proiect;
+rollback;
+
+###############Select pentru citiri de date#################
+select * from ajutoare;
+select * from antrenor;
+select * from arbitru;
+select * from arena;
+select * from turneu_de_tenis;
+select * from bilet;
+select * from statistica;
+select * from lista;
+select * from lista_participanti;
+select * from meci;
+select * from medici;
+select * from participant;
+select * from staff;
+
+###############Creare baza de date##########################
+CREATE TABLE `turneu_de_tenis` (
+  `turneu_id` int NOT NULL AUTO_INCREMENT,
+  `nume` varchar(45) NOT NULL,
+  `data_inceput` date NOT NULL,
+  `data_sfarsit` date NOT NULL,
+  `pret_bilet` int NOT NULL,
+  PRIMARY KEY (`turneu_id`)
+);
+
+CREATE TABLE `staff` (
+  `cnp_staff` int NOT NULL UNIQUE,
+  `nume` varchar(45) NOT NULL,
+  `prenume` varchar(45) NOT NULL,
+  `turneu_id_fs` int NOT NULL,
+  PRIMARY KEY (`cnp_staff`),
+  KEY `turneu_id_fs_idx` (`turneu_id_fs`),
+  CONSTRAINT `turneu_id_fs` FOREIGN KEY (`turneu_id_fs`) REFERENCES `turneu_de_tenis` (`turneu_id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `ajutoare` (
+  `cnp_staff_a` int NOT NULL UNIQUE,
+  `divizie` varchar(45) NOT NULL,
+  PRIMARY KEY (`cnp_staff_a`),
+  CONSTRAINT `cnp_staff_a` FOREIGN KEY (`cnp_staff_a`) REFERENCES `staff` (`cnp_staff`) ON DELETE CASCADE
+);
+
+CREATE TABLE `medici` (
+  `cnp_staff_m` int NOT NULL UNIQUE,
+  `divizie` varchar(45) NOT NULL,
+  PRIMARY KEY (`cnp_staff_m`),
+  KEY `cnp_staff_idx` (`cnp_staff_m`),
+  CONSTRAINT `cnp_staff` FOREIGN KEY (`cnp_staff_m`) REFERENCES `staff` (`cnp_staff`) ON DELETE CASCADE
+);
+
+CREATE TABLE `arbitru` (
+  `cnp_staff_r` int NOT NULL UNIQUE,
+  `divizie` varchar(45) NOT NULL,
+  PRIMARY KEY (`cnp_staff_r`),
+  KEY `cnp_staff_r_idx` (`cnp_staff_r`),
+  CONSTRAINT `cnp_staff_r` FOREIGN KEY (`cnp_staff_r`) REFERENCES `staff` (`cnp_staff`) ON DELETE CASCADE
+);
+
+CREATE TABLE `antrenor` (
+  `cnp_antrenor` int NOT NULL UNIQUE,
+  `nume` varchar(45) NOT NULL,
+  `prenume` varchar(45) NOT NULL,
+  `tara` varchar(45) NOT NULL,
+  PRIMARY KEY (`cnp_antrenor`)
+);
+
+CREATE TABLE `lista_participanti` (
+  `lista_p_id` int NOT NULL AUTO_INCREMENT,
+  `nr_participanti` int NOT NULL,
+  PRIMARY KEY (`lista_p_id`)
+);
+
+CREATE TABLE `participant` (
+  `cnp_participant` int NOT NULL UNIQUE,
+  `nume` varchar(45) NOT NULL,
+  `prenume` varchar(45) NOT NULL,
+  `tara` varchar(45) NOT NULL,
+  `varsta` varchar(45) NOT NULL,
+  `cnp_antrenor_f` int,
+  `lista_p_id_f` int,
+  `id_turneu_f` int,
+  PRIMARY KEY (`cnp_participant`),
+  KEY `cnp_antrenor_idx` (`cnp_antrenor_f`),
+  KEY `lista_p_id_idx` (`lista_p_id_f`),
+  KEY `id_turneu_idx` (`id_turneu_f`),
+  CONSTRAINT `cnp_antrenor` FOREIGN KEY (`cnp_antrenor_f`) REFERENCES `antrenor` (`cnp_antrenor`) ON DELETE SET NULL,
+  CONSTRAINT `lista_p_id_cns` FOREIGN KEY (`lista_p_id_f`) REFERENCES `lista_participanti` (`lista_p_id`) ON DELETE SET NULL,
+  CONSTRAINT `id_turneu_cns` FOREIGN KEY (`id_turneu_f`) REFERENCES `turneu_de_tenis` (`turneu_id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `arena` (
+  `adresa` varchar(50) NOT NULL,
+  `nr_locuri` int NOT NULL,
+  PRIMARY KEY (`adresa`)
+);
+
+CREATE TABLE `bilet` (
+  `nr_bilet` int NOT NULL AUTO_INCREMENT,
+  `tip_bilet` varchar(45) NOT NULL,
+  `turneu_id_f` int NOT NULL,
+  `adresa_f` varchar(50) NOT NULL,
+  PRIMARY KEY (`nr_bilet`),
+  KEY `adresa_idx` (`adresa_f`),
+  KEY `turneu_id_idx` (`turneu_id_f`),
+  CONSTRAINT `adresa` FOREIGN KEY (`adresa_f`) REFERENCES `arena` (`adresa`) ON DELETE CASCADE,
+  CONSTRAINT `turneu_id` FOREIGN KEY (`turneu_id_f`) REFERENCES `turneu_de_tenis` (`turneu_id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `statistica` (
+  `statistica_id` int NOT NULL AUTO_INCREMENT,
+  `nr_asi` int NOT NULL,
+  `nr_duble_greseli` int NOT NULL,
+  `nr_greseli_nefortate` int NOT NULL,
+  `nr_lovituri_castigatoare` int NOT NULL,
+  PRIMARY KEY (`statistica_id`)
+);
+
+CREATE TABLE `lista` (
+  `lista_id` int NOT NULL AUTO_INCREMENT,
+  `statistica_id_f` int,
+  `data` varchar(45) NOT NULL,
+  PRIMARY KEY (`lista_id`),
+  KEY `statistica_id_idx` (`statistica_id_f`),
+  CONSTRAINT `statistica_id` FOREIGN KEY (`statistica_id_f`) REFERENCES `statistica` (`statistica_id`) ON DELETE SET NULL
+);
+
+CREATE TABLE `meci` (
+  `meci_id` int NOT NULL AUTO_INCREMENT,
+  `tip` varchar(45) NOT NULL,
+  `scor` varchar(45) NOT NULL,
+  `lista_id_f` int,
+  `lista_p_id_fm` int NOT NULL,
+  PRIMARY KEY (`meci_id`),
+  KEY `lista_id_idx` (`lista_id_f`),
+  KEY `lista_p_id_idx` (`lista_p_id_fm`),
+  CONSTRAINT `lista_f` FOREIGN KEY (`lista_id_f`) REFERENCES `lista` (`lista_id`) ON DELETE SET NULL,
+  CONSTRAINT `lista_p_fm` FOREIGN KEY (`lista_p_id_fm`) REFERENCES `lista_participanti` (`lista_p_id`) ON DELETE CASCADE
+);
+
+###########################################################
+
+INSERT INTO `proiect`.`antrenor`
+(`cnp_antrenor`,
+`nume`,
+`prenume`,
+`tara`)
+VALUES
+(34234522,"smith","erwin","USA");
+
+INSERT INTO `proiect`.`antrenor`
+(`cnp_antrenor`,
+`nume`,
+`prenume`,
+`tara`)
+VALUES
+(42345552,"ackerman","levi","Japan");
+
+INSERT INTO `proiect`.`antrenor`
+(`cnp_antrenor`,
+`nume`,
+`prenume`,
+`tara`)
+VALUES
+(45234345,"ioan","pop","Romania");
+
+INSERT INTO `proiect`.`antrenor`
+(`cnp_antrenor`,
+`nume`,
+`prenume`,
+`tara`)
+VALUES
+(45554323,"johan","mac","USA");
+
+INSERT INTO `proiect`.`antrenor`
+(`cnp_antrenor`,
+`nume`,
+`prenume`,
+`tara`)
+VALUES
+(63479299,"hans","francis","France");
+
+###########################################################
+
+INSERT INTO `proiect`.`arena`
+(`adresa`,
+`nr_locuri`)
+VALUES
+("France, Paris, charles str, nr 5",1775);
+
+INSERT INTO `proiect`.`arena`
+(`adresa`,
+`nr_locuri`)
+VALUES
+("Romania, Bucharest, tei str, nr 10",1225);
+
+INSERT INTO `proiect`.`arena`
+(`adresa`,
+`nr_locuri`)
+VALUES
+("Spain, Madrid, main str, nr 35",1600);
+
+INSERT INTO `proiect`.`arena`
+(`adresa`,
+`nr_locuri`)
+VALUES
+("USA Los Gatos, master str, nr 78",4556);
+
+INSERT INTO `proiect`.`arena`
+(`adresa`,
+`nr_locuri`)
+VALUES
+("USA, San Francisco, 34th str, nr1",1000);
+
+###########################################################
+
+INSERT INTO `proiect`.`turneu_de_tenis`
+(`nume`,
+`data_inceput`,
+`data_sfarsit`,
+`pret_bilet`)
+VALUES
+("Wimbledon","2010-05-12","2010-05-28",550);
+
+INSERT INTO `proiect`.`turneu_de_tenis`
+(`nume`,
+`data_inceput`,
+`data_sfarsit`,
+`pret_bilet`)
+VALUES
+("Miami Open","2005-01-01","2005-01-05",300);
+
+INSERT INTO `proiect`.`turneu_de_tenis`
+(`nume`,
+`data_inceput`,
+`data_sfarsit`,
+`pret_bilet`)
+VALUES
+("Mutua Madrid Open","2001-12-29","2002-01-09",125);
+
+INSERT INTO `proiect`.`turneu_de_tenis`
+(`nume`,
+`data_inceput`,
+`data_sfarsit`,
+`pret_bilet`)
+VALUES
+("Davis Cup","2020-10-10","2020-10-29",120);
+
+INSERT INTO `proiect`.`turneu_de_tenis`
+(`nume`,
+`data_inceput`,
+`data_sfarsit`,
+`pret_bilet`)
+VALUES
+("ATC Cup","2008-03-10","2008-04-10",155);
+
+###########################################################
+
+INSERT INTO `proiect`.`bilet`
+(`tip_bilet`,
+`turneu_id_f`,
+`adresa_f`)
+VALUES
+("vip",1,"Spain, Madrid, main str, nr 35");
+
+INSERT INTO `proiect`.`bilet`
+(`tip_bilet`,
+`turneu_id_f`,
+`adresa_f`)
+VALUES
+("standard",3,"Spain, Madrid, main str, nr 35");
+
+INSERT INTO `proiect`.`bilet`
+(`tip_bilet`,
+`turneu_id_f`,
+`adresa_f`)
+VALUES
+("vip",2,"Romania, Bucharest, tei str, nr 10");
+
+INSERT INTO `proiect`.`bilet`
+(`tip_bilet`,
+`turneu_id_f`,
+`adresa_f`)
+VALUES
+("vip",2,"USA, San Francisco, 34th str, nr1");
+
+INSERT INTO `proiect`.`bilet`
+(`tip_bilet`,
+`turneu_id_f`,
+`adresa_f`)
+VALUES
+("standard",3,"Spain, Madrid, main str, nr 35");
+
+###########################################################
+
+INSERT INTO `proiect`.`statistica`
+(`nr_asi`,
+`nr_duble_greseli`,
+`nr_greseli_nefortate`,
+`nr_lovituri_castigatoare`)
+VALUES
+(5,3,14,25);
+
+INSERT INTO `proiect`.`statistica`
+(`nr_asi`,
+`nr_duble_greseli`,
+`nr_greseli_nefortate`,
+`nr_lovituri_castigatoare`)
+VALUES
+(6,1,21,31);
+
+INSERT INTO `proiect`.`statistica`
+(`nr_asi`,
+`nr_duble_greseli`,
+`nr_greseli_nefortate`,
+`nr_lovituri_castigatoare`)
+VALUES
+(1,11,7,19);
+
+INSERT INTO `proiect`.`statistica`
+(`nr_asi`,
+`nr_duble_greseli`,
+`nr_greseli_nefortate`,
+`nr_lovituri_castigatoare`)
+VALUES
+(11,7,19,29);
+
+INSERT INTO `proiect`.`statistica`
+(`nr_asi`,
+`nr_duble_greseli`,
+`nr_greseli_nefortate`,
+`nr_lovituri_castigatoare`)
+VALUES
+(3,9,9,18);
+
+###########################################################
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(1,"win");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(1,"loss");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(2,"loss");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(3,"win");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(4,"win");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(2,"win");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(2,"loss");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(3,"loss");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(1,"win");
+
+INSERT INTO `proiect`.`lista`
+(`statistica_id_f`,
+`data`)
+VALUES
+(1,"win");
+
+###########################################################
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(45);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(4);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(11);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(41);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(23);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(23);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(11);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(45);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(5);
+
+INSERT INTO `proiect`.`lista_participanti`
+(`nr_participanti`)
+VALUES
+(45);
+
+
+###########################################################
+
+INSERT INTO `proiect`.`meci`
+(`tip`,
+`scor`,
+`lista_id_f`,
+`lista_p_id_fm`)
+VALUES
+("finala", "9-3-1, 0-6-8", 2, 1);
+
+INSERT INTO `proiect`.`meci`
+(`tip`,
+`scor`,
+`lista_id_f`,
+`lista_p_id_fm`)
+VALUES
+("finala", "9-3-1, 0-6-8", 3, 1);
+
+INSERT INTO `proiect`.`meci`
+(`tip`,
+`scor`,
+`lista_id_f`,
+`lista_p_id_fm`)
+VALUES
+("finala", "9-3-1, 0-6-8", 1, 3);
+
+INSERT INTO `proiect`.`meci`
+(`tip`,
+`scor`,
+`lista_id_f`,
+`lista_p_id_fm`)
+VALUES
+("finala", "9-3-1, 0-6-8", 4, 4);
+
+INSERT INTO `proiect`.`meci`
+(`tip`,
+`scor`,
+`lista_id_f`,
+`lista_p_id_fm`)
+VALUES
+("finala", "9-3-1, 0-6-8", 5, 1);
+
+###########################################################
+
+INSERT INTO `proiect`.`participant`
+(`cnp_participant`,
+`nume`,
+`prenume`,
+`tara`,
+`varsta`,
+`cnp_antrenor_f`,
+`lista_p_id_f`,
+`id_turneu_f`)
+VALUES
+(1235232, "braus", "sasha", "germany", 21, 34234522, 5 ,1);
+
+INSERT INTO `proiect`.`participant`
+(`cnp_participant`,
+`nume`,
+`prenume`,
+`tara`,
+`varsta`,
+`cnp_antrenor_f`,
+`lista_p_id_f`,
+`id_turneu_f`)
+VALUES
+(1983931, "brown", "kenny", "UK", 41, 45554323, 3, 1);
+
+INSERT INTO `proiect`.`participant`
+(`cnp_participant`,
+`nume`,
+`prenume`,
+`tara`,
+`varsta`,
+`cnp_antrenor_f`,
+`lista_p_id_f`,
+`id_turneu_f`)
+VALUES
+(2138297, "antyr", "emil", "spain", 33, 63479299, 2, 1);
+
+INSERT INTO `proiect`.`participant`
+(`cnp_participant`,
+`nume`,
+`prenume`,
+`tara`,
+`varsta`,
+`cnp_antrenor_f`,
+`lista_p_id_f`,
+`id_turneu_f`)
+VALUES
+(2934892, "lione", "bennett", "france", 26, 63479299, 5, 2);
+
+INSERT INTO `proiect`.`participant`
+(`cnp_participant`,
+`nume`,
+`prenume`,
+`tara`,
+`varsta`,
+`cnp_antrenor_f`,
+`lista_p_id_f`,
+`id_turneu_f`)
+VALUES
+(5342534, "rose", "lisa", "germany", 31, 45554323, 3, 2);
+
+###########################################################
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(3253746,"stan","sofia",1);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(4239023,"ionescu","denisa",2);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(6872573,"anav","ion",2);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(7929040,"popescu","george",4);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(8738992,"iancu","maria",2);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(6432112,"vadu","stefania",1);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(4252345,"popescu","ioan",2);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(2349023,"popescu","ana",3);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(5643023,"popescu","cata",4);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(7922240,"ionescu","cata",3);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(7942222,"ionescu","andrei",2);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(7922222,"pobe","cata",2);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(1132112,"anais","anton",4);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(6432111,"solc","westly",5);
+
+INSERT INTO `proiect`.`staff`
+(`cnp_staff`,
+`nume`,
+`prenume`,
+`turneu_id_fs`)
+VALUES
+(6431112,"nawe","tim",2);
+
+
+###########################################################
+
+INSERT INTO `proiect`.`medici`
+(`cnp_staff_m`,
+`divizie`)
+VALUES
+(3253746, "pe teren");
+
+INSERT INTO `proiect`.`medici`
+(`cnp_staff_m`,
+`divizie`)
+VALUES
+(4239023, "urgente");
+
+INSERT INTO `proiect`.`medici`
+(`cnp_staff_m`,
+`divizie`)
+VALUES
+(4252345, "urgente");
+
+INSERT INTO `proiect`.`medici`
+(`cnp_staff_m`,
+`divizie`)
+VALUES
+(2349023, "pe teren");
+
+INSERT INTO `proiect`.`medici`
+(`cnp_staff_m`,
+`divizie`)
+VALUES
+(5643023, "urgente");
+
+###########################################################
+
+INSERT INTO `proiect`.`ajutoare`
+(`cnp_staff_a`,
+`divizie`)
+VALUES
+(6872573, "ball boy");
+
+INSERT INTO `proiect`.`ajutoare`
+(`cnp_staff_a`,
+`divizie`)
+VALUES
+(7929040, "ball boy");
+
+INSERT INTO `proiect`.`ajutoare`
+(`cnp_staff_a`,
+`divizie`)
+VALUES
+(7922220, "organizator");
+
+INSERT INTO `proiect`.`ajutoare`
+(`cnp_staff_a`,
+`divizie`)
+VALUES
+(7942222, "ball boy");
+
+INSERT INTO `proiect`.`ajutoare`
+(`cnp_staff_a`,
+`divizie`)
+VALUES
+(7922222, "organizator");
+
+###########################################################
+
+INSERT INTO `proiect`.`arbitru`
+(`cnp_staff_r`,
+`divizie`)
+VALUES
+(8738992, "professional");
+
+INSERT INTO `proiect`.`arbitru`
+(`cnp_staff_r`,
+`divizie`)
+VALUES
+(6432112, "standard");
+
+INSERT INTO `proiect`.`arbitru`
+(`cnp_staff_r`,
+`divizie`)
+VALUES
+(1132112, "standard");
+
+INSERT INTO `proiect`.`arbitru`
+(`cnp_staff_r`,
+`divizie`)
+VALUES
+(6432111, "standard");
+
+INSERT INTO `proiect`.`arbitru`
+(`cnp_staff_r`,
+`divizie`)
+VALUES
+(6431112, "standard");
+
+###########################################################
